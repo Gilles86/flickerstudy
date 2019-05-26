@@ -4,29 +4,33 @@ from psychopy.visual import TextStim
 from exptools2 import utils
 import os.path as op
 import numpy as np
-
+from stimulus import Rim, FlickerStimulus, FixationPoint
 
 class FlickerTrial(Trial):
     """ Simple trial with text (trial x) and fixation. """
     def __init__(self, session, trial_nr, phase_durations, frequency=15., **kwargs):
         super().__init__(session, trial_nr, phase_durations, **kwargs)
-        self.txt = TextStim(self.session.win)
 
         self.cycle_length_seconds = 1./frequency
         self.cycle_length_frames = self.cycle_length_seconds * self.session.actual_framerate
 
     def draw(self):
         """ Draws stimuli """
+
+        self.session.rim.draw()
         
-        print(self.cycle_length_frames)
         contrast = self.session.nr_frames % self.cycle_length_frames
         contrast /= self.cycle_length_frames
         contrast *= np.pi * 2
         contrast = np.sin(contrast)
-        #self.txt.text = contrast
-        self.txt.contrast = contrast
-        self.txt.draw()
-        
+
+        self.session.flicker_stimulus.contrast = contrast
+        self.session.flicker_stimulus.draw()
+        self.session.fixation_stimulus.draw()
+
+        if self.session.clock.getTime() > self.session.fixation_switch_onsets[0]:
+            self.session.change_fixation_color()
+
 
 
 class FlickerSession(Session):
@@ -44,6 +48,29 @@ class FlickerSession(Session):
 
         self.n_trials = len(self.durations)
 
+        mean_color_duration = self.settings['flicker_experiment']['mean_color_duration']
+        total_duration = np.sum(self.durations)
+
+        self.fixation_switch_onsets = np.random.exponential(mean_color_duration,
+                                                            int(total_duration/mean_color_duration * 10))
+        self.fixation_switch_onsets = list(np.cumsum(self.fixation_switch_onsets))
+
+        self.rim = Rim(self.win,
+                       self.settings['flicker_experiment']['rim_size'],
+                       self.settings['flicker_experiment']['rim_size'] * \
+                       self.settings['flicker_experiment']['rim_outer_ratio'],
+                       self.settings['flicker_experiment']['rim_nbars'],
+                       (0, 0),)
+
+        self.flicker_stimulus = FlickerStimulus(self.win,
+                                                self.settings['flicker_experiment']['rim_size'])
+        self.fixation_stimulus = FixationPoint(self.win,
+                                               (0, 0),
+                                               self.settings['flicker_experiment']['fixation_size'])
+        
+        self.fixation_stimulus.fixation_stim1.opacity = 0
+        self.fixation_stimulus.fixation_stim2.opacity = 0
+                                               
     def create_trials(self,
                       timing='seconds'):
         self.trials = []
@@ -58,6 +85,27 @@ class FlickerSession(Session):
                              verbose=True,
                              timing=timing)
             )
+
+    def change_fixation_color(self):
+
+        print('yo')
+
+        if (self.fixation_stimulus.fixation_stim3.color == [1., -1., -1.]).all():
+            print('to green')
+            self.fixation_stimulus.fixation_stim3.color = (-1., 1., -1.)
+            color = 'green'
+        else:
+            print('to red')
+            self.fixation_stimulus.fixation_stim3.color = (1., -1., -1.)
+            color = 'red'
+
+        idx = self.global_log.shape[0]
+        self.global_log.loc[idx, 'color'] = color
+        self.global_log.loc[idx, 'event_type'] = 'color change'
+
+        self.fixation_switch_onsets.pop(0)
+        print(self.fixation_switch_onsets)
+
 
     def run(self):
         """ Runs experiment. """

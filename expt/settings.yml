@@ -14,9 +14,9 @@ window:
 
 monitor:
   name: default
-  width: 50  # in cm
-  distance: 80  # in cm
-  gamma: .1
+  width: 36.3  # in cm
+  distance: 50  # in cm
+  gamma: 2.1
 
 mouse:
   visible: False
@@ -36,7 +36,12 @@ mri:
   sound: False  # simulate scanner noise
 
 flicker_experiment:
-  #durations: [4, 4, 4, 4, 4, 4]
-  #frequencies: [1, 2, 4, 8, 16, 32]
-  durations: [10]
-  frequencies: [.5]
+  durations: [4, 4, 4, 4, 4, 4]
+  frequencies: [1, 2, 4, 8, 16, 32]
+  #durations: [10]
+  #frequencies: [5]
+  rim_size: 10
+  rim_outer_ratio: 1.2
+  rim_nbars: 32
+  fixation_size: 2
+  mean_color_duration: 2
