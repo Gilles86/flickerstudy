@@ -102,14 +102,17 @@ class FlickerSession(Session):
         idx = self.global_log.shape[0]
         self.global_log.loc[idx, 'color'] = color
         self.global_log.loc[idx, 'event_type'] = 'color change'
-
+        self.global_log.loc[idx, 'nr_frames'] = 0
+        self.global_log.loc[idx, 'phase'] = 0
+        self.global_log.loc[idx, 'trial_nr'] = self.global_log.iloc[-1]['trial_nr']
+        self.global_log.loc[idx, 'onset'] =self.clock.getTime()
         self.fixation_switch_onsets.pop(0)
         print(self.fixation_switch_onsets)
 
 
     def run(self):
         """ Runs experiment. """
-        self.start_experiment()
+        self.start_experiment(wait_n_triggers=1)
         for trial in self.trials:
             trial.run()            
 
