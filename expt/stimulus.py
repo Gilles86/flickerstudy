@@ -14,6 +14,7 @@ class ImageBased(object):
                  ori=0,
                  contrast=1,
                  hide=False,
+                 mask=None,
                  *args,
                  **kwargs):
 
@@ -22,12 +23,15 @@ class ImageBased(object):
 
         self._array, self._mask = self._get_array()
 
+        if mask is None:
+            mask = self._mask 
+
         self._stim = psychopy.visual.ImageStim(
             self.win,
             self._array,
             size=size,
             pos=pos,
-            mask=self._mask,
+            mask=mask,
             ori=ori,
             *args,
             **kwargs)
@@ -116,13 +120,13 @@ class FlickerStimulus(ImageBased):
 
     def __init__(self, win, size, pos=(0, 0),
                  falloff_ratio=.9,
-                 resolution=1000, *args, **kwargs):
+                 resolution=1024, *args, **kwargs):
 
         self.size = size
         self.resolution = resolution
         self.falloff_ratio = falloff_ratio
 
-        super(FlickerStimulus, self).__init__(win, size=size * 2, pos=pos, *args, **kwargs)
+        super(FlickerStimulus, self).__init__(win, size=size * 2, pos=pos, mask='raisedCos', texRes=1024, *args, **kwargs)
 
     def _get_array(self):
         x = np.linspace(-self.size,
@@ -135,17 +139,18 @@ class FlickerStimulus(ImageBased):
 
         xv, yv = np.meshgrid(x, y)
 
-        im = np.ones_like(xv) * 5
+        im = np.ones_like(xv)
 
         rad = np.sqrt(xv**2+yv**2)
 
-        falloff_min = self.falloff_ratio * self.size
-        falloff_size = (1 - self.falloff_ratio) * self.size
+        #falloff_min = self.falloff_ratio * self.size
+        #falloff_size = (1 - self.falloff_ratio) * self.size
 
-        falloff_region = np.cos((rad[rad > falloff_min] - falloff_min) \
-            / falloff_size * np.pi)
+        #falloff_region = (np.cos((rad[rad > falloff_min] - falloff_min) \
+            #/ falloff_size * np.pi) + 1) / 2
 
-        im[rad > falloff_min] = falloff_region
+        #im[rad > falloff_min] = falloff_region
+        #print(im)
 
         mask = (rad < self.size)
         mask = mask.astype(float)
@@ -164,30 +169,23 @@ class FixationPoint(object):
                  color=(1,-1,-1)):
 
         self.screen = win
-
-        self.fixation_stim1 = GratingStim(win,
+        self.fixation_stim = GratingStim(win,
                                           sf=0,
-                                          color=[.5, .5, .5],
-                                          mask='circle',
+                                          color=color,
+                                          mask='raisedCos',
+                                          maskParams={'fringeWidth':.2*size},
+                                          texRes=512,
                                           pos=pos,
                                           size=size)
 
         self.fixation_stim2 = GratingStim(win,
                                           sf=0,
-                                          color=[-1, -1, -1],
-                                          mask='circle',
+                                          color=[0., 0., 0.],
+                                          mask='raisedCos',
+                                          maskParams={'fringeWidth':.4*size},
+                                          texRes=512,
                                           pos=pos,
-                                          size=0.66*size)
-
-
-
-        self.fixation_stim3 = GratingStim(win,
-                                          sf=0,
-                                          color=color,
-                                          mask='circle',
-                                          pos=pos,
-                                          size=0.33*size)
+                                          size=2.*size)
     def draw(self):
-        self.fixation_stim1.draw()
-        self.fixation_stim2.draw()
-        self.fixation_stim3.draw()
+        #self.fixation_stim2.draw()
+        self.fixation_stim.draw()

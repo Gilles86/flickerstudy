@@ -1,3 +1,5 @@
+import argparse
+from datetime import datetime
 from exptools2.core import Session
 from exptools2.core import Trial
 from psychopy.visual import TextStim
@@ -17,7 +19,7 @@ class FlickerTrial(Trial):
     def draw(self):
         """ Draws stimuli """
 
-        self.session.rim.draw()
+        #self.session.rim.draw()
         
         contrast = self.session.nr_frames % self.cycle_length_frames
         contrast /= self.cycle_length_frames
@@ -68,15 +70,16 @@ class FlickerSession(Session):
                                                (0, 0),
                                                self.settings['flicker_experiment']['fixation_size'])
         
-        self.fixation_stimulus.fixation_stim1.opacity = 0
-        self.fixation_stimulus.fixation_stim2.opacity = 0
                                                
     def create_trials(self,
                       timing='seconds'):
         self.trials = []
+
         for trial_nr, duration, frequency in zip(range(self.n_trials),
                                                  self.durations,
                                                  self.frequencies):
+
+
             self.trials.append(
                 FlickerTrial(session=self,
                              trial_nr=trial_nr,
@@ -86,17 +89,13 @@ class FlickerSession(Session):
                              timing=timing)
             )
 
+
     def change_fixation_color(self):
-
-        print('yo')
-
-        if (self.fixation_stimulus.fixation_stim3.color == [1., -1., -1.]).all():
-            print('to green')
-            self.fixation_stimulus.fixation_stim3.color = (-1., 1., -1.)
+        if (self.fixation_stimulus.fixation_stim.color == [1., -1., -1.]).all():
+            self.fixation_stimulus.fixation_stim.color = (-1., 1., -1.)
             color = 'green'
         else:
-            print('to red')
-            self.fixation_stimulus.fixation_stim3.color = (1., -1., -1.)
+            self.fixation_stimulus.fixation_stim.color = (1., -1., -1.)
             color = 'red'
 
         idx = self.global_log.shape[0]
@@ -121,8 +120,15 @@ class FlickerSession(Session):
 
 if __name__ == '__main__':
 
-    settings = op.join(op.dirname(__file__), 'settings.yml')
-    session = FlickerSession('sub-01', settings_file=settings)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('subject')
+    parser.add_argument('--settings',
+                        default='settings.yml')
+
+    args = parser.parse_args()
+    now = datetime.now()
+    date_str = now.strftime('%Y.%m.%d.%H.%M.%S')
+    session = FlickerSession(f'sub-{args.subject}.{date_str}', settings_file=args.settings)
     session.create_trials()
     session.run()
     session.quit()
