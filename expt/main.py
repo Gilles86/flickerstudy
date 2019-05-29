@@ -13,18 +13,24 @@ class FlickerTrial(Trial):
     def __init__(self, session, trial_nr, phase_durations, frequency=15., **kwargs):
         super().__init__(session, trial_nr, phase_durations, **kwargs)
 
-        self.cycle_length_seconds = 1./frequency
-        self.cycle_length_frames = self.cycle_length_seconds * self.session.actual_framerate
+        if frequency == 0:
+            self.cycle_length_seconds = 0
+        else:
+            self.cycle_length_seconds = 1./frequency
+            self.cycle_length_frames = self.cycle_length_seconds * self.session.actual_framerate
 
     def draw(self):
         """ Draws stimuli """
 
         #self.session.rim.draw()
         
-        contrast = self.session.nr_frames % self.cycle_length_frames
-        contrast /= self.cycle_length_frames
-        contrast *= np.pi * 2
-        contrast = np.sin(contrast)
+        if self.cycle_length_seconds == 0:
+            contrast = 0
+        else:
+            contrast = self.session.nr_frames % self.cycle_length_frames
+            contrast /= self.cycle_length_frames
+            contrast *= np.pi * 2
+            contrast = np.sin(contrast)
 
         self.session.flicker_stimulus.contrast = contrast
         self.session.flicker_stimulus.draw()
@@ -77,19 +83,22 @@ class FlickerSession(Session):
                       timing='seconds'):
         self.trials = []
 
-        for trial_nr, duration, frequency in zip(range(self.n_trials),
-                                                 self.durations,
-                                                 self.frequencies):
+        for trial_group in range(self.settings['flicker_experiment']['repeats']):
+            for trial_nr, duration, frequency in zip(range(self.n_trials),
+                                                     self.durations,
+                                                     self.frequencies):
 
 
-            self.trials.append(
-                FlickerTrial(session=self,
-                             trial_nr=trial_nr,
-                             phase_durations=(duration,),
-                             frequency=frequency,
-                             verbose=True,
-                             timing=timing)
-            )
+                self.trials.append(
+                    FlickerTrial(session=self,
+                                 trial_nr=trial_nr + (trial_group * self.settings['flicker_experiment']['repeats']),
+                                 phase_durations=(duration,),
+                                 frequency=frequency,
+                                 verbose=True,
+                                 timing=timing)
+                )
+
+        print(self.trials)
 
 
     def change_fixation_color(self):
