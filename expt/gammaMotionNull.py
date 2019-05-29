@@ -25,6 +25,8 @@ import time
 
 import pickle as pkl
 
+KEYS = ['z', 'm']
+
 try:
     # try to load previous info
     info = fromFile('info_gamma.pickle')
@@ -109,9 +111,9 @@ def getResponse(direction):
                 # win.bits.reset()
                 core.quit()
             # valid response - check to see if correct
-            elif key in ['down', 'up']:
-                if ((key in ['down'] and direction == -1) or
-                        (key in ['up'] and direction == +1)):
+            elif key in keys:
+                if ((key in KEYS[:1] and direction == -1) or
+                        (key in KEYS[1:] and direction == +1)):
                     return 0
                 else:
                     return 1
@@ -163,12 +165,14 @@ core.wait(0.5)
 win.close()
 
 # save data
-fileName = gui.fileSaveDlg('.', '%s_%s' %(info['observer'], info['timeStr']))
+#fileName = gui.fileSaveDlg('.', '%s_%s' %(info['observer'], info['timeStr']))
 
-with open(fileName+'lo', 'wb') as f:
+fileName = 'gamma_calib'
+
+with open(fileName+'lo.pkl', 'wb') as f:
     pkl.dump(stairCases[0], f)
 
-with open(fileName+'hi', 'wb') as f:
+with open(fileName+'hi.pkl', 'wb') as f:
     pkl.dump(stairCases[1], f)
 print(stairCases[0])
 print(stairCases[1])
@@ -181,4 +185,3 @@ print(stairCases[1])
 
 #core.quit()
 
-# The contents of this file are in the public domain.
