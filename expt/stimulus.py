@@ -19,9 +19,8 @@ class ImageBased(object):
                  **kwargs):
 
         self.win = win
-        self.size = size
 
-        self._array, self._mask = self._get_array()
+        self._array, self._mask = self._get_array(size)
 
         if mask is None:
             mask = self._mask 
@@ -71,49 +70,25 @@ class ImageBased(object):
     def setOri(self, value):
         self.ori = value
 
-class Rim(ImageBased):
+    @property
+    def pos(self):
+        return self._stim.pos
 
-    def __init__(self, win,
-                 inner_radius,
-                 outer_radius,
-                 n_bars,
-                 pos,
-                 resolution=1000,
-                 *args,
-                 **kwargs):
+    @ori.setter
+    def pos(self, value):
+        self._stim.pos = value
 
-        self.inner_radius = inner_radius
-        self.outer_radius = outer_radius
-        self.n_bars = n_bars
-        self.resolution = resolution
-
-        super(Rim, self).__init__(win,
-                                  size=outer_radius*2,
-                                  pos=pos,
-                                  *args,
-                                  **kwargs)
-
-    def _get_array(self):
-        x = np.linspace(-self.outer_radius,
-                        self.outer_radius,
-                        self.resolution)
-
-        y = np.linspace(-self.outer_radius,
-                        self.outer_radius,
-                        self.resolution)
-
-        xv, yv = np.meshgrid(x, y)
-
-        rim = np.round(np.arctan2(xv, yv) / np.pi * self.n_bars/2) % 2 * 2 - 1
+    def setPos(self, value):
+        self.pos = value
 
 
-        rad = xv**2+yv**2
-        mask = (rad > self.inner_radius**2) & (rad < self.outer_radius**2)
-        mask = mask.astype(float)
+    @property
+    def size(self):
+        return self._stim.size
 
-        mask = mask * 2 - 1
-
-        return rim, mask
+    @size.setter
+    def size(self, value):
+        self._stim.size = value
 
 
 class FlickerStimulus(ImageBased):
@@ -122,19 +97,18 @@ class FlickerStimulus(ImageBased):
                  falloff_ratio=.9,
                  resolution=1024, *args, **kwargs):
 
-        self.size = size
         self.resolution = resolution
         self.falloff_ratio = falloff_ratio
 
-        super(FlickerStimulus, self).__init__(win, size=size * 2, pos=pos, mask='raisedCos', texRes=1024, *args, **kwargs)
+        super(FlickerStimulus, self).__init__(win, size=size, pos=pos, mask='raisedCos', texRes=1024, *args, **kwargs)
 
-    def _get_array(self):
-        x = np.linspace(-self.size,
-                        self.size,
+    def _get_array(self, size):
+        x = np.linspace(-size / 2.,
+                        size / 2.,
                         self.resolution)
 
-        y = np.linspace(-self.size,
-                        self.size,
+        y = np.linspace(-size / 2.,
+                        size / 2.,
                         self.resolution)
 
         xv, yv = np.meshgrid(x, y)
@@ -143,16 +117,7 @@ class FlickerStimulus(ImageBased):
 
         rad = np.sqrt(xv**2+yv**2)
 
-        #falloff_min = self.falloff_ratio * self.size
-        #falloff_size = (1 - self.falloff_ratio) * self.size
-
-        #falloff_region = (np.cos((rad[rad > falloff_min] - falloff_min) \
-            #/ falloff_size * np.pi) + 1) / 2
-
-        #im[rad > falloff_min] = falloff_region
-        #print(im)
-
-        mask = (rad < self.size)
+        mask = (rad < size / 2.)
         mask = mask.astype(float)
         mask = mask * 2 - 1
 
@@ -169,6 +134,7 @@ class FixationPoint(object):
                  color=(1,-1,-1)):
 
         self.screen = win
+        self._pos = pos
         self.fixation_stim = GratingStim(win,
                                           sf=0,
                                           color=color,
@@ -189,3 +155,29 @@ class FixationPoint(object):
     def draw(self):
         #self.fixation_stim2.draw()
         self.fixation_stim.draw()
+
+    @property
+    def pos(self):
+        return self.pos
+
+    @pos.setter
+    def pos(self, value):
+        self.fixation_stim.pos = value
+        self.fixation_stim2.pos = value
+        self._pos = value
+
+    def setPos(self, value):
+        self.pos = value
+
+    @property
+    def size(self):
+        return self.pos
+
+    @size.setter
+    def size(self, value):
+        self.fixation_stim.size = value
+        self.fixation_stim2.size = value
+        self._pos = value
+
+    def setSize(self, value):
+        self.size = value

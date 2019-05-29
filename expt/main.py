@@ -6,7 +6,7 @@ from psychopy.visual import TextStim
 from exptools2 import utils
 import os.path as op
 import numpy as np
-from stimulus import Rim, FlickerStimulus, FixationPoint
+from stimulus import FlickerStimulus, FixationPoint
 
 class FlickerTrial(Trial):
     """ Simple trial with text (trial x) and fixation. """
@@ -64,18 +64,12 @@ class FlickerSession(Session):
                                                             int(total_duration/mean_color_duration * 10))
         self.fixation_switch_onsets = list(np.cumsum(self.fixation_switch_onsets))
 
-        self.rim = Rim(self.win,
-                       self.settings['flicker_experiment']['rim_size'],
-                       self.settings['flicker_experiment']['rim_size'] * \
-                       self.settings['flicker_experiment']['rim_outer_ratio'],
-                       self.settings['flicker_experiment']['rim_nbars'],
-                       (0, 0),)
-
         self.flicker_stimulus = FlickerStimulus(self.win,
-                                                self.settings['flicker_experiment']['rim_size'],
+                                                self.settings['flicker_experiment']['size'],
                                                 pos=self.settings['flicker_experiment']['position'])
         self.fixation_stimulus = FixationPoint(self.win,
-                                               size=self.settings['flicker_experiment']['fixation_size'],
+                                               size=self.settings['flicker_experiment']['fixation_size_prop'] * \
+                                              self.settings['flicker_experiment']['size'],
                                                pos=self.settings['flicker_experiment']['position'])
         
                                                

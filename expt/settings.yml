@@ -42,9 +42,8 @@ flicker_experiment:
 
   #durations: [30]
   #frequencies: [1]
-  rim_size: 10
-  rim_outer_ratio: 1.2
-  rim_nbars: 32
-  fixation_size: 2
+  size: 15
+  fixation_size_prop: .05
   mean_color_duration: 2
-  position: [-5, 5]
+  position: [0, 0]
+  keys: [z, x, n, m]
