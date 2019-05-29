@@ -36,8 +36,10 @@ mri:
   sound: False  # simulate scanner noise
 
 flicker_experiment:
-  durations: [4, 4, 4, 4, 4, 4]
-  frequencies: [1, 2, 4, 8, 16, 32]
+  frequencies: [.5, 1, 2, 4, 8, 16, 0, 0, 0, 0, 16, 8, 4, 2, 1, .5, 0, 0, 0, 0]
+  durations: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+  repeats: 4
+
   #durations: [30]
   #frequencies: [1]
   rim_size: 10
