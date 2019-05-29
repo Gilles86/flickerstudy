@@ -45,3 +45,4 @@ flicker_experiment:
   rim_nbars: 32
   fixation_size: 2
   mean_color_duration: 2
+  position: [-5, 5]

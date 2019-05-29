@@ -44,6 +44,7 @@ class FlickerSession(Session):
         super().__init__(output_str, output_dir=None, settings_file=settings_file)
         self.durations = self.settings['flicker_experiment']['durations']
         self.frequencies = self.settings['flicker_experiment']['frequencies']
+        self.default_fix.pos = self.settings['flicker_experiment']['position']
 
         if len(self.frequencies) != len(self.durations):
             raise Exception('Length of frequencies and durations-settings should be equal!')
@@ -65,10 +66,11 @@ class FlickerSession(Session):
                        (0, 0),)
 
         self.flicker_stimulus = FlickerStimulus(self.win,
-                                                self.settings['flicker_experiment']['rim_size'])
+                                                self.settings['flicker_experiment']['rim_size'],
+                                                pos=self.settings['flicker_experiment']['position'])
         self.fixation_stimulus = FixationPoint(self.win,
-                                               (0, 0),
-                                               self.settings['flicker_experiment']['fixation_size'])
+                                               size=self.settings['flicker_experiment']['fixation_size'],
+                                               pos=self.settings['flicker_experiment']['position'])
         
                                                
     def create_trials(self,
