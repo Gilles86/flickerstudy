@@ -5,7 +5,7 @@ services:
     build: .
     volumes:
       - ./analysis:/src
-      - /home/raw_data/2019/visual/flicker/sourcedata/:/sourcedata/ds-odc
+      - /home/raw_data/2019/visual/flicker/sourcedata/:/sourcedata/ds-flicker
       - /home/shared/2019/visual/flicker/:/derivatives
       - /tmp/workflow_folders:/workflow_folders
       - ./spynoza:/spynoza
