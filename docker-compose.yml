@@ -1,0 +1,20 @@
+version: '2'
+services:
+  flicker:
+    entrypoint: zsh
+    build: .
+    volumes:
+      - ./analysis:/src
+      - /home/raw_data/2019/visual/flicker/sourcedata/:/sourcedata/ds-odc
+      - /home/shared/2019/visual/flicker/:/derivatives
+      - /tmp/workflow_folders:/workflow_folders
+      - ./spynoza:/spynoza
+      - ./crashdumps:/crashdumps
+      - ./nighres:/nighres/nighres
+      - ./fmriprep:/fmriprep
+      - ./nighres:/nighres
+      - ./pybids:/pybids
+      - /home/hollander/.local/freesurfer/license.txt:/opt/freesurfer-6.0.1/license.txt
+      - /home/hollander/pycortex/db:/pycortex_db
+      - ./pycortex:/pycortex
+      - ./pycortex_options.cfg:/root/.config/pycortex/options.cfg
