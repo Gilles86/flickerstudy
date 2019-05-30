@@ -9,7 +9,7 @@ def main(bids_dir,
          session=None):
 
     print(subject, session, bids_dir)
-    layout = BIDSLayout(bids_dir, absolute_paths=False)
+    layout = BIDSLayout(bids_dir)
     bolds = layout.get(subject=subject, 
                        session=session,
                        extensions='nii', 
@@ -17,24 +17,25 @@ def main(bids_dir,
                        suffix='bold')
     
     for bold in bolds:
+        print(bold)
         epi = layout.get(suffix='epi',
                          subject=subject,
                          session=session,
                          extensions='nii',
+                         acquisition=bold.acquisition,
                          run=bold.run)
 
         print(epi)
-        assert(len(epi) == 1), 'No EPI found for {}'.format(bold.filename)
+        assert(len(epi) == 1), 'No EPI found for {}'.format(bold.path)
         epi = epi[0]
 
         json_d = {'PhaseEncodingDirection':'i',
                   'TotalReadoutTime':0.04, 
-                  'IntendedFor':bold.filename.replace('sub-{}/'.format(subject), '')}
+                  'IntendedFor':bold.path.replace('sub-{}/'.format(subject), '')}
 
         print(json_d)
 
-        json_filename = os.path.join(layout.root,
-                                     epi.filename.replace("nii", "json"))
+        json_filename = epi.path.replace("nii", "json")
         print(json_filename)
 
         with open(json_filename, 'w') as f:
@@ -50,7 +51,7 @@ if __name__ == '__main__':
                         help="Session to process")
     args = parser.parse_args()
 
-    main('/sourcedata/ds-odc', 
+    main('/sourcedata/ds-flicker', 
          subject=args.subject,
          session=args.session)
 
