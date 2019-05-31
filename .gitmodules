@@ -1,0 +1,15 @@
+[submodule "spynoza"]
+	path = spynoza
+	url = git@github.com:spinoza-centre/spynoza.git
+[submodule "nighres"]
+	path = nighres
+	url = git@github.com:Gilles86/nighres.git
+[submodule "fmriprep"]
+	path = fmriprep
+	url = git@github.com:poldracklab/fmriprep.git
+[submodule "pybids"]
+	path = pybids
+	url = git@github.com:bids-standard/pybids.git
+[submodule "pycortex"]
+	path = pycortex
+	url = git@github.com:Gilles86/pycortex.git
